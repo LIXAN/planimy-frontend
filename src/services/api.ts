@@ -1,0 +1,80 @@
+import axiosInstance from 'axios';
+
+const API_URL = 'http://localhost:8001';
+
+export const api = axiosInstance.create({
+    baseURL: API_URL,
+    headers: {
+        'Content-Type': 'application/json',
+    },
+});
+
+api.interceptors.request.use((config) => {
+    const token = localStorage.getItem('token');
+    if (token && config.headers) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+});
+
+export const authService = {
+    login: async (username: string, password: string) => {
+        const formData = new URLSearchParams();
+        formData.append('username', username);
+        formData.append('password', password);
+
+        const response = await api.post('/auth/login', formData, {
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        });
+        return response.data;
+    }
+};
+
+export const projectService = {
+    getProjects: async () => {
+        const response = await api.get('/proyectos/');
+        return response.data;
+    },
+    getProject: async (id: string) => {
+        const response = await api.get(`/proyectos/${id}`);
+        return response.data;
+    },
+    createProject: async (data: any) => {
+        const response = await api.post('/proyectos/', data);
+        return response.data;
+    },
+    createTorre: async (projectId: string, data: any) => {
+        const response = await api.post(`/proyectos/${projectId}/torres`, data);
+        return response.data;
+    },
+    createTipoPlantilla: async (projectId: string, data: any) => {
+        const response = await api.post(`/proyectos/${projectId}/tipos`, data);
+        return response.data;
+    },
+    getTorre: async (projectId: string, torreId: string) => {
+        const response = await api.get(`/proyectos/${projectId}/torres/${torreId}`);
+        return response.data;
+    },
+    createPiso: async (projectId: string, torreId: string, data: any) => {
+        const response = await api.post(`/proyectos/${projectId}/torres/${torreId}/pisos`, data);
+        return response.data;
+    },
+    updateTipoPlantilla: async (projectId: string, tipoId: string, data: any) => {
+        const response = await api.put(`/proyectos/${projectId}/tipos/${tipoId}`, data);
+        return response.data;
+    },
+    deleteTorre: async (projectId: string, torreId: string) => {
+        const response = await api.delete(`/proyectos/${projectId}/torres/${torreId}`);
+        return response.data;
+    },
+    deletePiso: async (projectId: string, torreId: string, pisoId: string) => {
+        const response = await api.delete(`/proyectos/${projectId}/torres/${torreId}/pisos/${pisoId}`);
+        return response.data;
+    },
+    deleteTipoPlantilla: async (projectId: string, tipoId: string) => {
+        const response = await api.delete(`/proyectos/${projectId}/tipos/${tipoId}`);
+        return response.data;
+    }
+};

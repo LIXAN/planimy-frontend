@@ -1,0 +1,146 @@
+import React, { useState } from 'react';
+import { Button } from '../atoms/Button';
+import { Typography } from '../atoms/Typography';
+import { FilterDropdown } from '../atoms/FilterDropdown';
+import { DEPARTAMENTOS, COLOMBIA_LOCATIONS } from '../../utils/colombia_locations';
+
+interface ProjectModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSubmit: (data: any) => Promise<void>;
+}
+
+export const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, onSubmit }) => {
+    const [nombre, setNombre] = useState('');
+    const [departamento, setDepartamento] = useState('');
+    const [ciudad, setCiudad] = useState('');
+    const [esVis, setEsVis] = useState(false);
+    const [tipoInmueble, setTipoInmueble] = useState('Apartamentos');
+    const [zonasSociales, setZonasSociales] = useState('');
+    const [loading, setLoading] = useState(false);
+
+    if (!isOpen) return null;
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
+        const zonasArray = zonasSociales.split(',').map(z => z.trim()).filter(z => z.length > 0);
+        await onSubmit({
+            nombre,
+            departamento,
+            ciudad,
+            es_vis: esVis,
+            tipo_inmueble: tipoInmueble,
+            zonas_sociales: zonasArray
+        });
+        setLoading(false);
+        setNombre('');
+        setDepartamento('');
+        setCiudad('');
+        setEsVis(false);
+        setTipoInmueble('Apartamentos');
+        setZonasSociales('');
+    };
+
+    const dptoOptions = DEPARTAMENTOS.map(d => ({ label: d, value: d }));
+    const cityOptions = departamento && COLOMBIA_LOCATIONS[departamento]
+        ? COLOMBIA_LOCATIONS[departamento].map(c => ({ label: c, value: c }))
+        : [];
+
+    const tipoOptions = [
+        { label: 'Apartamentos', value: 'Apartamentos' },
+        { label: 'Casas', value: 'Casas' },
+        { label: 'Lotes/Terrenos', value: 'Lotes' },
+        { label: 'Oficinas/Locales', value: 'Oficinas' },
+        { label: 'Mixto', value: 'Mixto' }
+    ];
+
+    return (
+        <div className="fixed inset-0 bg-dark-900/90 flex items-center justify-center z-50 p-4">
+            <div className="bg-dark-800 border border-white/10 p-6 rounded-2xl w-full max-w-md shadow-2xl animate-fade-in relative overflow-hidden theme-light:bg-white theme-light:border-slate-200">
+                {/* Glow removed for performance */}
+
+                <div className="flex justify-between items-center mb-6">
+                    <Typography variant="h2">Nuevo Proyecto</Typography>
+                    <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors theme-light:text-slate-400 theme-light:hover:text-slate-800">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                </div>
+
+                <form onSubmit={handleSubmit} className="space-y-4 relative z-10">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-400 mb-1 theme-light:text-slate-600">Nombre del Proyecto</label>
+                        <input
+                            type="text"
+                            value={nombre}
+                            onChange={(e) => setNombre(e.target.value)}
+                            required
+                            className="w-full bg-dark-900 border border-white/10 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-saas-500 transition-all theme-light:bg-slate-50 theme-light:border-slate-200 theme-light:text-slate-900 theme-light:focus:bg-white"
+                            placeholder="Ej. Torres del Valle"
+                        />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-400 mb-1 theme-light:text-slate-600">Departamento</label>
+                            <FilterDropdown
+                                value={departamento}
+                                onChange={(val) => { setDepartamento(val); setCiudad(''); }}
+                                options={dptoOptions}
+                                placeholder="Seleccionar"
+                                variant="input"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-400 mb-1 theme-light:text-slate-600">Ciudad</label>
+                            <FilterDropdown
+                                value={ciudad}
+                                onChange={setCiudad}
+                                options={cityOptions}
+                                placeholder={departamento ? "Seleccionar" : "Elija Dpto primero"}
+                                variant="input"
+                            />
+                        </div>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-400 mb-1 theme-light:text-slate-600">Tipo de Inmueble</label>
+                        <FilterDropdown
+                            value={tipoInmueble}
+                            onChange={setTipoInmueble}
+                            options={tipoOptions}
+                            variant="input"
+                        />
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-400 mb-1 theme-light:text-slate-600">Zonas Sociales (separadas por coma)</label>
+                        <input
+                            type="text"
+                            value={zonasSociales}
+                            onChange={(e) => setZonasSociales(e.target.value)}
+                            className="w-full bg-dark-900 border border-white/10 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-saas-500 transition-all theme-light:bg-slate-50 theme-light:border-slate-200 theme-light:text-slate-900 theme-light:focus:bg-white"
+                            placeholder="Ej. Piscina, Gimnasio, Parqueadero"
+                        />
+                    </div>
+                    <div className="flex items-center space-x-2 pt-2">
+                        <input
+                            type="checkbox"
+                            checked={esVis}
+                            onChange={(e) => setEsVis(e.target.checked)}
+                            id="vis-checkbox"
+                            className="w-4 h-4 text-saas-500 bg-dark-900 border-white/10 rounded focus:ring-saas-500 theme-light:border-slate-300 theme-light:bg-white"
+                        />
+                        <label htmlFor="vis-checkbox" className="text-sm text-gray-300 cursor-pointer theme-light:text-slate-700">
+                            Es Vivienda de Interés Social (VIS)
+                        </label>
+                    </div>
+
+                    <div className="pt-4 flex justify-end space-x-3">
+                        <Button type="button" variant="ghost" onClick={onClose}>Cancelar</Button>
+                        <Button type="submit" disabled={loading}>
+                            {loading ? 'Guardando...' : 'Crear Proyecto'}
+                        </Button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    );
+};
