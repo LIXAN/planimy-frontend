@@ -1,6 +1,6 @@
 import axiosInstance from 'axios';
 
-const API_URL = 'http://localhost:8001';
+const API_URL = 'http://localhost:8000';
 
 export const api = axiosInstance.create({
     baseURL: API_URL,
@@ -45,6 +45,10 @@ export const projectService = {
         const response = await api.post('/proyectos/', data);
         return response.data;
     },
+    updateProject: async (id: string, data: any) => {
+        const response = await api.put(`/proyectos/${id}`, data);
+        return response.data;
+    },
     createTorre: async (projectId: string, data: any) => {
         const response = await api.post(`/proyectos/${projectId}/torres`, data);
         return response.data;
@@ -61,6 +65,10 @@ export const projectService = {
         const response = await api.post(`/proyectos/${projectId}/torres/${torreId}/pisos`, data);
         return response.data;
     },
+    updatePiso: async (projectId: string, torreId: string, pisoId: string, data: any) => {
+        const response = await api.put(`/proyectos/${projectId}/torres/${torreId}/pisos/${pisoId}`, data);
+        return response.data;
+    },
     updateTipoPlantilla: async (projectId: string, tipoId: string, data: any) => {
         const response = await api.put(`/proyectos/${projectId}/tipos/${tipoId}`, data);
         return response.data;
@@ -75,6 +83,29 @@ export const projectService = {
     },
     deleteTipoPlantilla: async (projectId: string, tipoId: string) => {
         const response = await api.delete(`/proyectos/${projectId}/tipos/${tipoId}`);
+        return response.data;
+    },
+    getApartamentosPorPiso: async (projectId: string, torreId: string, pisoId: string) => {
+        const response = await api.get(`/proyectos/${projectId}/torres/${torreId}/pisos/${pisoId}/apartamentos`);
+        return response.data;
+    }
+};
+
+export const rrhhService = {
+    getEmpleados: async (skip: number = 0, limit: number = 100) => {
+        const response = await api.get(`/rrhh/empleados?skip=${skip}&limit=${limit}`);
+        return response.data;
+    },
+    createEmpleado: async (data: any) => {
+        const response = await api.post('/rrhh/empleados', data);
+        return response.data;
+    },
+    updateEmpleado: async (id: string, data: any) => {
+        const response = await api.put(`/rrhh/empleados/${id}`, data);
+        return response.data;
+    },
+    deleteEmpleado: async (id: string) => {
+        const response = await api.delete(`/rrhh/empleados/${id}`);
         return response.data;
     }
 };

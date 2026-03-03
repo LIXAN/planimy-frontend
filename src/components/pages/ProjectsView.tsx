@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { ProjectTable } from '../organisms/ProjectTable';
 import { ProjectModal } from '../organisms/ProjectModal';
 import { projectService } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
@@ -27,7 +26,8 @@ export const ProjectsView: React.FC = () => {
                 tipo_inmueble: p.tipo_inmueble,
                 towers: p.torres ? p.torres.length : 0,
                 progress: p.es_vis ? 100 : 0, // Mock for VIS flag in progress column for now
-                is_vis: p.es_vis
+                is_vis: p.es_vis,
+                imagen_url: p.imagen_url
             }));
             setProjects(mappedData);
         } catch (error) {
@@ -168,9 +168,71 @@ export const ProjectsView: React.FC = () => {
                     </div>
                 </div>
 
+                {/* Render Grid of Cards instead of Table */}
                 {!loading ? (
                     filteredProjects.length > 0 ? (
-                        <ProjectTable projects={filteredProjects} onManage={setSelectedProjectId} />
+                        <div className="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-6">
+                            {filteredProjects.map((project: any) => (
+                                <div
+                                    key={project.id}
+                                    className="relative flex flex-col h-80 rounded-2xl overflow-hidden group shadow-lg cursor-pointer transform-gpu transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl theme-light:border theme-light:border-slate-200"
+                                    onClick={() => setSelectedProjectId(project.id)}
+                                >
+                                    {/* Background Image / Gradient */}
+                                    {project.imagen_url ? (
+                                        <div
+                                            className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+                                            style={{ backgroundImage: `url(${project.imagen_url})` }}
+                                        />
+                                    ) : (
+                                        <div className="absolute inset-0 bg-dark-800 theme-light:bg-slate-300 transition-transform duration-700 group-hover:scale-105" />
+                                    )}
+                                    {/* Usamos un gradient oscuro desde abajo incluso en modo claro para que los textos blancos se lean bien sobre cualquier imagen */}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-dark-900 via-dark-900/60 to-transparent theme-light:from-slate-900/90 theme-light:via-slate-900/50 theme-light:to-transparent/10" />
+
+                                    {/* Top badges */}
+                                    <div className="absolute top-4 left-4 flex gap-2">
+                                        <span className="bg-saas-500 text-white text-xs px-3 py-1 rounded-full shadow-sm font-semibold">
+                                            {project.ciudad || 'Sin ciudad'}
+                                        </span>
+                                    </div>
+                                    <div className="absolute top-4 right-4 flex gap-2">
+                                        {project.is_vis && (
+                                            <span className="bg-emerald-500/90 text-white text-xs px-2 py-1 rounded shadow-sm font-semibold">
+                                                VIS
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    {/* Bottom Content */}
+                                    <div className="relative mt-auto p-5 flex flex-col">
+                                        {/* El texto vuelve a ser blanco en modo claro porque el fondo vuelve a oscurecerse en la parte inferior */}
+                                        <h3 className="text-2xl font-bold text-white mb-1 drop-shadow-md">
+                                            {project.name}
+                                        </h3>
+                                        <div className="flex items-center text-gray-200 text-sm mb-4">
+                                            <svg className="w-4 h-4 mr-1 text-saas-400 theme-light:text-saas-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                            <span className="drop-shadow-sm">{project.location}</span>
+                                        </div>
+
+                                        {/* Progress Bar (Mock concept) */}
+                                        <div className="w-full bg-white/20 theme-light:bg-white/30 rounded-full h-1.5 mb-5">
+                                            <div className="bg-saas-400 theme-light:bg-saas-500 h-1.5 rounded-full" style={{ width: `${project.progress}%` }}></div>
+                                        </div>
+
+                                        <button
+                                            className="w-full bg-dark-900/80 hover:bg-saas-500 border border-white/10 hover:border-saas-400 theme-light:bg-slate-900/60 theme-light:text-white theme-light:border-transparent theme-light:hover:bg-saas-500 text-white py-3 rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-saas-500/20 theme-light:shadow-sm"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setSelectedProjectId(project.id);
+                                            }}
+                                        >
+                                            Gestionar Proyecto
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     ) : (
                         <div className="text-center text-gray-500 py-16 border-2 border-dashed border-white/10 rounded-2xl theme-light:border-slate-200 theme-light:text-slate-500">
                             No se encontraron proyectos con los filtros actuales.

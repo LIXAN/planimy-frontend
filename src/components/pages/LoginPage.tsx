@@ -35,8 +35,8 @@ export const LoginPage: React.FC = () => {
 
             <div className="glass-card w-full max-w-md p-8 rounded-2xl animate-slide-up relative z-10">
                 <div className="text-center mb-8">
-                    <Typography variant="h1" className="mb-2 tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-white to-saas-300">STRATOS</Typography>
-                    <Typography variant="caption" className="uppercase tracking-widest text-saas-500/80 mb-6 block font-semibold">Powered by LEXIAN</Typography>
+                    <h1 className="text-4xl md:text-5xl font-black mb-3 tracking-[0.2em] pl-[0.2em] text-transparent bg-clip-text bg-gradient-to-r from-white via-saas-100 to-saas-400 drop-shadow-[0_0_15px_rgba(45,212,191,0.3)]">PLANIMY</h1>
+                    <span className="text-xs uppercase tracking-[0.3em] pl-[0.3em] text-saas-400/80 mb-6 block font-bold">Powered by LIXAN</span>
                     <Typography variant="subtitle">Ingresa tus credenciales para continuar</Typography>
                 </div>
 

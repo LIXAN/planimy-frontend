@@ -5,107 +5,8 @@ import { Header } from '../organisms/Header';
 import { projectService } from '../../services/api';
 import { TorreDetailsView } from './TorreDetailsView';
 import ConfirmModal from '../atoms/ConfirmModal';
-
-const TorreModal = ({ isOpen, onClose, onSubmit, loading }: any) => {
-    // ... TorreModal content ...
-    const [nombre, setNombre] = useState('');
-    const [pisos, setPisos] = useState<number | ''>('');
-
-    if (!isOpen) return null;
-    return (
-        <div className="fixed inset-0 bg-dark-900/90 flex items-center justify-center z-50 p-4">
-            <div className="bg-dark-800 border border-white/10 p-6 rounded-2xl w-full max-w-md shadow-2xl relative theme-light:bg-white theme-light:border-slate-200">
-                <Typography variant="h2" className="mb-4">Nueva Torre</Typography>
-                <form onSubmit={e => { e.preventDefault(); onSubmit({ nombre, numero_pisos: Number(pisos) }); }}>
-                    <div className="space-y-4">
-                        <div>
-                            <label className="block text-xs font-semibold text-gray-400 mb-1 theme-light:text-slate-500">Nombre de la Torre</label>
-                            <input className="w-full bg-dark-900 border border-white/10 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-saas-500 outline-none theme-light:bg-slate-50 theme-light:border-slate-200 theme-light:text-slate-900 theme-light:focus:bg-white theme-light:placeholder-slate-400" placeholder="Ej. Torre 1" value={nombre} onChange={e => setNombre(e.target.value)} required />
-                        </div>
-                        <div>
-                            <label className="block text-xs font-semibold text-gray-400 mb-1 theme-light:text-slate-500">Número de Pisos</label>
-                            <input type="number" className="w-full bg-dark-900 border border-white/10 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-saas-500 outline-none theme-light:bg-slate-50 theme-light:border-slate-200 theme-light:text-slate-900 theme-light:focus:bg-white theme-light:placeholder-slate-400" placeholder="" value={pisos} onChange={e => setPisos(e.target.value ? Number(e.target.value) : '')} required min="1" />
-                        </div>
-                    </div>
-                    <div className="mt-6 flex justify-end space-x-3">
-                        <Button type="button" variant="ghost" onClick={onClose}>Cancelar</Button>
-                        <Button type="submit" disabled={loading}>{loading ? 'Guardando...' : 'Crear Torre'}</Button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    );
-};
-
-const TipoPlantillaModal = ({ isOpen, onClose, onSubmit, loading, initialData }: any) => {
-    const [nombre, setNombre] = useState(initialData?.nombre || '');
-    const [areaConstruida, setAreaConstruida] = useState<number | ''>(initialData?.area_construida || '');
-    const [areaPrivada, setAreaPrivada] = useState<number | ''>(initialData?.area_privada || '');
-    const [habitaciones, setHabitaciones] = useState<number | ''>(initialData?.habitaciones || '');
-    const [banos, setBanos] = useState<number | ''>(initialData?.banos || '');
-
-    useEffect(() => {
-        if (initialData) {
-            setNombre(initialData.nombre);
-            setAreaConstruida(initialData.area_construida);
-            setAreaPrivada(initialData.area_privada);
-            setHabitaciones(initialData.habitaciones);
-            setBanos(initialData.banos);
-        } else {
-            setNombre(''); setAreaConstruida(''); setAreaPrivada(''); setHabitaciones(''); setBanos('');
-        }
-    }, [initialData, isOpen]);
-
-    if (!isOpen) return null;
-    return (
-        <div className="fixed inset-0 bg-dark-900/90 flex items-center justify-center z-50 p-4">
-            <div className="bg-dark-800 border border-white/10 p-6 rounded-2xl w-full max-w-md shadow-2xl relative theme-light:bg-white theme-light:border-slate-200">
-                <Typography variant="h2" className="mb-4">{initialData ? 'Editar Tipo' : 'Nuevo Tipo'}</Typography>
-                <form onSubmit={e => {
-                    e.preventDefault();
-                    onSubmit({
-                        nombre,
-                        area_construida: Number(areaConstruida),
-                        area_privada: Number(areaPrivada),
-                        habitaciones: Number(habitaciones),
-                        banos: Number(banos)
-                    });
-                }}>
-                    <div className="space-y-4">
-                        <div>
-                            <label className="block text-xs font-semibold text-gray-400 mb-1 theme-light:text-slate-500">Nombre del Tipo</label>
-                            <input className="w-full bg-dark-900 border border-white/10 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-saas-500 outline-none theme-light:bg-slate-50 theme-light:border-slate-200 theme-light:text-slate-900 theme-light:focus:bg-white theme-light:placeholder-slate-400" placeholder="Ej. Tipo A" value={nombre} onChange={e => setNombre(e.target.value)} required />
-                        </div>
-                        <div className="flex space-x-2">
-                            <div className="w-1/2">
-                                <label className="block text-xs font-semibold text-gray-400 mb-1 theme-light:text-slate-500">Área Construida (m²)</label>
-                                <input type="number" step="0.01" className="w-full bg-dark-900 border border-white/10 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-saas-500 outline-none theme-light:bg-slate-50 theme-light:border-slate-200 theme-light:text-slate-900 theme-light:focus:bg-white theme-light:placeholder-slate-400" placeholder="" value={areaConstruida} onChange={e => setAreaConstruida(e.target.value ? Number(e.target.value) : '')} required min="0" />
-                            </div>
-                            <div className="w-1/2">
-                                <label className="block text-xs font-semibold text-gray-400 mb-1 theme-light:text-slate-500">Área Privada (m²)</label>
-                                <input type="number" step="0.01" className="w-full bg-dark-900 border border-white/10 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-saas-500 outline-none theme-light:bg-slate-50 theme-light:border-slate-200 theme-light:text-slate-900 theme-light:focus:bg-white theme-light:placeholder-slate-400" placeholder="" value={areaPrivada} onChange={e => setAreaPrivada(e.target.value ? Number(e.target.value) : '')} required min="0" />
-                            </div>
-                        </div>
-                        <div className="flex space-x-2">
-                            <div className="w-1/2">
-                                <label className="block text-xs font-semibold text-gray-400 mb-1 theme-light:text-slate-500">Habitaciones</label>
-                                <input type="number" className="w-full bg-dark-900 border border-white/10 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-saas-500 outline-none theme-light:bg-slate-50 theme-light:border-slate-200 theme-light:text-slate-900 theme-light:focus:bg-white theme-light:placeholder-slate-400" placeholder="" value={habitaciones} onChange={e => setHabitaciones(e.target.value ? Number(e.target.value) : '')} required min="1" />
-                            </div>
-                            <div className="w-1/2">
-                                <label className="block text-xs font-semibold text-gray-400 mb-1 theme-light:text-slate-500">Baños</label>
-                                <input type="number" className="w-full bg-dark-900 border border-white/10 text-white rounded-lg px-4 py-2 focus:ring-2 focus:ring-saas-500 outline-none theme-light:bg-slate-50 theme-light:border-slate-200 theme-light:text-slate-900 theme-light:focus:bg-white theme-light:placeholder-slate-400" placeholder="" value={banos} onChange={e => setBanos(e.target.value ? Number(e.target.value) : '')} required min="1" />
-                            </div>
-                        </div>
-                    </div>
-                    <div className="mt-6 flex justify-end space-x-3">
-                        <Button type="button" variant="ghost" onClick={onClose}>Cancelar</Button>
-                        <Button type="submit" disabled={loading}>{loading ? 'Guardando...' : (initialData ? 'Actualizar Tipo' : 'Crear Tipo')}</Button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    );
-};
+import { TorreModal } from '../organisms/TorreModal';
+import { TipoPlantillaModal } from '../organisms/TipoPlantillaModal';
 
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean, error: Error | null }> {
     constructor(props: { children: React.ReactNode }) {
@@ -152,16 +53,22 @@ const ProjectDetailsViewContent: React.FC<ProjectDetailsViewProps> = ({ projectI
 
     const [savingTipo, setSavingTipo] = useState(false);
     const [editingTipo, setEditingTipo] = useState<any>(null);
+    const [tipoModalError, setTipoModalError] = useState<string | null>(null);
 
     const [torreToDelete, setTorreToDelete] = useState<string | null>(null);
     const [tipoToDelete, setTipoToDelete] = useState<string | null>(null);
     const [deleting, setDeleting] = useState(false);
+
+    const [editingImage, setEditingImage] = useState(false);
+    const [tempImageUrl, setTempImageUrl] = useState('');
+    const [savingImage, setSavingImage] = useState(false);
 
     const fetchProject = async () => {
         try {
             setLoading(true);
             const data = await projectService.getProject(projectId);
             setProject(data);
+            setTempImageUrl(data.imagen_url || '');
         } catch (error) {
             console.error("Error fetching project", error);
         } finally {
@@ -191,6 +98,7 @@ const ProjectDetailsViewContent: React.FC<ProjectDetailsViewProps> = ({ projectI
     const handleCreateOrUpdateTipo = async (data: any) => {
         try {
             setSavingTipo(true);
+            setTipoModalError(null);
             if (editingTipo) {
                 await projectService.updateTipoPlantilla(projectId, editingTipo.id, data);
             } else {
@@ -199,8 +107,13 @@ const ProjectDetailsViewContent: React.FC<ProjectDetailsViewProps> = ({ projectI
             setIsTipoModalOpen(false);
             setEditingTipo(null);
             fetchProject();
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error saving tipo", error);
+            if (error.response?.data?.detail) {
+                setTipoModalError(error.response.data.detail);
+            } else {
+                setTipoModalError("Ocurrió un error al guardar el Tipo de Plantilla.");
+            }
         } finally {
             setSavingTipo(false);
         }
@@ -250,9 +163,24 @@ const ProjectDetailsViewContent: React.FC<ProjectDetailsViewProps> = ({ projectI
         }
     };
 
+    const handleSaveImage = async () => {
+        if (!project) return;
+        setSavingImage(true);
+        try {
+            await projectService.updateProject(projectId, { imagen_url: tempImageUrl || null });
+            await fetchProject();
+            setEditingImage(false);
+        } catch (error) {
+            console.error("Error updating image", error);
+            alert("Hubo un error al actualizar la imagen del proyecto.");
+        } finally {
+            setSavingImage(false);
+        }
+    };
+
     // Si hay una torre seleccionada, descendemos a esa vista
     if (selectedTorreId) {
-        return <TorreDetailsView projectId={projectId} torreId={selectedTorreId} onBack={() => setSelectedTorreId(null)} />;
+        return <TorreDetailsView projectId={projectId} torreId={selectedTorreId} onBack={() => setSelectedTorreId(null)} project={project} />;
     }
 
     if (loading) return <div className="p-8 text-center text-gray-400 animate-pulse">Cargando detalles...</div>;
@@ -261,14 +189,13 @@ const ProjectDetailsViewContent: React.FC<ProjectDetailsViewProps> = ({ projectI
     const totalTorres = project.torres ? project.torres.length : 0;
     const totalAptos = project.torres ? project.torres.reduce((acc: number, t: any) => acc + t.numero_aptos, 0) : 0;
     const totalTipos = project.tipos_plantilla ? project.tipos_plantilla.length : 0;
+    const esCasas = project.tipo_inmueble === 'Casas';
 
     return (
         <div className="animate-fade-in flex-1 flex flex-col relative w-full h-full">
             <Header
                 title={`Proyecto: ${project.nombre}`}
                 subtitle={`${project.ciudad || 'Sin ciudad'}, ${project.departamento || 'Sin dpto'}` + (project.es_vis ? ' | Proyecto VIS' : '')}
-                actionLabel="+ Agregar Torre"
-                onAction={() => setIsTorreModalOpen(true)}
             />
 
             <div className="p-8 space-y-8">
@@ -277,21 +204,91 @@ const ProjectDetailsViewContent: React.FC<ProjectDetailsViewProps> = ({ projectI
                 </Button>
 
                 <div className="glass-card theme-light:bg-white theme-light:border-slate-200 theme-light:shadow-slate-200/50 p-6 rounded-2xl">
-                    <Typography variant="h2" className="mb-2">Información General</Typography>
-                    <Typography variant="body" className="mb-6">
-                        Aquí verás los detalles como Ubicación, si es VIS y el progreso general de ventas agrupado de todas las torres.
-                        <br /><span className="text-gray-400 text-sm mt-2 block theme-light:text-slate-500">
-                            Zonas Sociales: {project.zonas_sociales && project.zonas_sociales.length > 0 ? project.zonas_sociales.join(', ') : 'Ninguna registrada'}
-                        </span>
-                    </Typography>
+                    <Typography variant="h2" className="mb-4">Información General</Typography>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <span className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 theme-light:text-slate-400">Ubicación</span>
+                            <span className="text-white theme-light:text-slate-900 font-medium">
+                                {project.ciudad || 'Ciudad no especificada'}, {project.departamento || 'Dpto no especificado'}
+                            </span>
+                        </div>
+                        <div>
+                            <span className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 theme-light:text-slate-400">Características</span>
+                            <div className="flex flex-wrap gap-2">
+                                {project.es_vis && (
+                                    <span className="px-2 py-1 text-xs rounded-full bg-saas-500/20 text-saas-400 theme-light:bg-saas-100 theme-light:text-saas-700">Proyecto VIS</span>
+                                )}
+                                <span className="px-2 py-1 text-xs rounded-full bg-dark-900 border border-white/10 text-gray-300 theme-light:bg-slate-100 theme-light:border-slate-200 theme-light:text-slate-700">
+                                    {project.tipo_inmueble || 'No especificado'}
+                                </span>
+                            </div>
+                        </div>
+                        <div className="md:col-span-2">
+                            <span className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 theme-light:text-slate-400">Zonas Sociales</span>
+                            <span className="text-gray-300 theme-light:text-slate-700 text-sm">
+                                {project.zonas_sociales && project.zonas_sociales.length > 0 ? project.zonas_sociales.join(', ') : 'Ninguna registrada'}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div className="mt-4 p-4 border border-white/5 rounded-xl bg-dark-900/50 theme-light:bg-slate-50 theme-light:border-slate-200">
+                        <div className="flex justify-between items-center mb-2">
+                            <span className="text-sm font-semibold text-gray-300 theme-light:text-slate-700">Imagen del Proyecto</span>
+                            {!editingImage && (
+                                <button
+                                    onClick={() => { setTempImageUrl(project.imagen_url || ''); setEditingImage(true); }}
+                                    className="text-saas-400 hover:text-saas-300 text-sm transition-colors theme-light:text-saas-600 theme-light:hover:text-saas-700 flex items-center gap-1"
+                                >
+                                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                                    Editar URL
+                                </button>
+                            )}
+                        </div>
+
+                        {editingImage ? (
+                            <div className="flex gap-2 items-center">
+                                <input
+                                    type="url"
+                                    value={tempImageUrl}
+                                    onChange={(e) => setTempImageUrl(e.target.value)}
+                                    placeholder="https://ejemplo.com/imagen.jpg"
+                                    className="flex-1 bg-dark-800 border border-white/10 text-white text-sm rounded-lg px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-saas-500 theme-light:bg-white theme-light:border-slate-300 theme-light:text-slate-900"
+                                />
+                                <button
+                                    onClick={handleSaveImage}
+                                    disabled={savingImage}
+                                    className="bg-saas-500 hover:bg-saas-400 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                                >
+                                    {savingImage ? '...' : 'Guardar'}
+                                </button>
+                                <button
+                                    onClick={() => setEditingImage(false)}
+                                    className="text-gray-400 hover:text-white px-2 py-1.5 text-sm transition-colors theme-light:text-slate-500 theme-light:hover:text-slate-800"
+                                >
+                                    Cancelar
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="text-sm text-gray-400 truncate theme-light:text-slate-500">
+                                {project.imagen_url ? (
+                                    <a href={project.imagen_url} target="_blank" rel="noreferrer" className="hover:text-white hover:underline transition-colors theme-light:hover:text-slate-800">
+                                        {project.imagen_url}
+                                    </a>
+                                ) : (
+                                    "Sin imagen asignada."
+                                )}
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
                         <div className="bg-dark-900 border border-white/5 p-4 rounded-xl theme-light:bg-slate-50 theme-light:border-slate-200">
-                            <span className="text-gray-400 text-sm block theme-light:text-slate-500">Torres Registradas</span>
+                            <span className="text-gray-400 text-sm block theme-light:text-slate-500">{esCasas ? 'Manzanas Registradas' : 'Torres Registradas'}</span>
                             <span className="text-2xl font-bold text-white theme-light:text-gray-900">{totalTorres}</span>
                         </div>
                         <div className="bg-dark-900 border border-white/5 p-4 rounded-xl theme-light:bg-slate-50 theme-light:border-slate-200">
-                            <span className="text-gray-400 text-sm block theme-light:text-slate-500">Aptos Totales</span>
+                            <span className="text-gray-400 text-sm block theme-light:text-slate-500">{esCasas ? 'Casas Totales' : 'Aptos Totales'}</span>
                             <span className="text-2xl font-bold text-white theme-light:text-gray-900">{totalAptos}</span>
                         </div>
                         <div className="bg-dark-900 border border-white/5 p-4 rounded-xl theme-light:bg-slate-50 theme-light:border-slate-200">
@@ -303,29 +300,32 @@ const ProjectDetailsViewContent: React.FC<ProjectDetailsViewProps> = ({ projectI
 
                 <div className="glass-card theme-light:bg-white theme-light:border-slate-200 theme-light:shadow-slate-200/50 p-6 rounded-2xl">
                     <div className="flex justify-between items-center mb-6">
-                        <Typography variant="h2">Administración de Torres</Typography>
+                        <Typography variant="h2">Administración de {esCasas ? 'Manzanas' : 'Torres'}</Typography>
+                        <Button onClick={() => setIsTorreModalOpen(true)}>
+                            + Agregar {esCasas ? 'Manzana' : 'Torre'}
+                        </Button>
                     </div>
                     {totalTorres === 0 ? (
                         <div className="text-center py-12 text-gray-500 border-2 border-dashed border-white/10 rounded-xl theme-light:border-slate-300 theme-light:text-slate-500">
-                            Aún no hay torres en este proyecto. Haz click en "+ Agregar Torre" para empezar.
+                            Aún no hay {esCasas ? 'manzanas' : 'torres'} en este proyecto. Haz click en "+ Agregar {esCasas ? 'Manzana' : 'Torre'}" para empezar.
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             {project.torres.map((torre: any) => (
                                 <div key={torre.id} className="bg-dark-900 border border-white/10 p-4 rounded-xl hover:border-saas-500 transition-colors cursor-pointer group theme-light:bg-slate-50 theme-light:border-slate-200 theme-light:hover:border-saas-400 relative" onClick={() => setSelectedTorreId(torre.id)}>
                                     <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button onClick={(e) => handleDeleteTorreClick(torre.id, e)} className="text-gray-500 hover:text-red-500 p-1 bg-dark-800 rounded-md theme-light:bg-white theme-light:shadow-sm" title="Eliminar Torre">
+                                        <button onClick={(e) => handleDeleteTorreClick(torre.id, e)} className="text-gray-500 hover:text-red-500 p-1 bg-dark-800 rounded-md theme-light:bg-white theme-light:shadow-sm" title={`Eliminar ${esCasas ? 'Manzana' : 'Torre'}`}>
                                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                                         </button>
                                     </div>
                                     <h3 className="text-lg font-bold text-white group-hover:text-saas-400 transition-colors theme-light:text-slate-800 pr-8">{torre.nombre}</h3>
                                     <div className="flex justify-between mt-2 text-sm text-gray-400 theme-light:text-slate-500">
-                                        <span>{torre.numero_pisos} Pisos</span>
-                                        <span>{torre.numero_aptos} Aptos</span>
+                                        {!esCasas && <span>{torre.numero_pisos} Pisos</span>}
+                                        <span>{torre.numero_aptos} {esCasas ? 'Casas' : 'Aptos'}</span>
                                     </div>
                                     <div className="mt-4 pt-4 border-t border-white/10 flex justify-between items-center theme-light:border-slate-200">
                                         <span className="text-xs px-2 py-1 rounded bg-white/5 text-gray-300 theme-light:bg-slate-200 theme-light:text-slate-600">En diseño</span>
-                                        <button className="text-saas-500 text-sm hover:underline theme-light:text-saas-600">Gestionar pisos →</button>
+                                        <button className="text-saas-500 text-sm hover:underline theme-light:text-saas-600">{esCasas ? 'Gestionar distribución →' : 'Gestionar pisos →'}</button>
                                     </div>
                                 </div>
                             ))}
@@ -335,14 +335,14 @@ const ProjectDetailsViewContent: React.FC<ProjectDetailsViewProps> = ({ projectI
 
                 <div className="glass-card theme-light:bg-white theme-light:border-slate-200 theme-light:shadow-slate-200/50 p-6 rounded-2xl">
                     <div className="flex justify-between items-center mb-6">
-                        <Typography variant="h2">Tipos de Apartamento</Typography>
+                        <Typography variant="h2">Tipos de {esCasas ? 'Casa' : 'Apartamento'}</Typography>
                         <Button onClick={() => { setEditingTipo(null); setIsTipoModalOpen(true); }}>
                             + Agregar Tipo
                         </Button>
                     </div>
                     {totalTipos === 0 ? (
                         <div className="text-center py-12 text-gray-500 border-2 border-dashed border-white/10 rounded-xl theme-light:border-slate-300 theme-light:text-slate-500">
-                            Aún no has configurado tipos de apartamento. Haz click en "+ Agregar Tipo" para empezar.
+                            Aún no has configurado tipos de {esCasas ? 'casa' : 'apartamento'}. Haz click en "+ Agregar Tipo" para empezar.
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -374,31 +374,37 @@ const ProjectDetailsViewContent: React.FC<ProjectDetailsViewProps> = ({ projectI
                 </div>
             </div>
 
-            {isTorreModalOpen && (
-                <TorreModal
-                    isOpen={isTorreModalOpen}
-                    onClose={() => setIsTorreModalOpen(false)}
-                    onSubmit={handleCreateTorre}
-                    loading={savingTorre}
-                />
-            )}
+            {
+                isTorreModalOpen && (
+                    <TorreModal
+                        isOpen={isTorreModalOpen}
+                        onClose={() => setIsTorreModalOpen(false)}
+                        onSubmit={handleCreateTorre}
+                        loading={savingTorre}
+                        esCasas={esCasas}
+                    />
+                )
+            }
 
-            {isTipoModalOpen && (
-                <TipoPlantillaModal
-                    isOpen={isTipoModalOpen}
-                    onClose={() => { setIsTipoModalOpen(false); setEditingTipo(null); }}
-                    onSubmit={handleCreateOrUpdateTipo}
-                    loading={savingTipo}
-                    initialData={editingTipo}
-                />
-            )}
+            {
+                isTipoModalOpen && (
+                    <TipoPlantillaModal
+                        isOpen={isTipoModalOpen}
+                        onClose={() => { setIsTipoModalOpen(false); setEditingTipo(null); setTipoModalError(null); }}
+                        onSubmit={handleCreateOrUpdateTipo}
+                        loading={savingTipo}
+                        initialData={editingTipo}
+                        error={tipoModalError}
+                    />
+                )
+            }
 
             <ConfirmModal
                 isOpen={torreToDelete !== null}
                 onClose={() => setTorreToDelete(null)}
                 onConfirm={confirmDeleteTorre}
-                title="Eliminar Torre"
-                message="¿Estás seguro de que deseas eliminar esta Torre? Se borrarán de forma permanente todos los pisos y apartamentos asociados."
+                title={`Eliminar ${esCasas ? 'Manzana' : 'Torre'}`}
+                message={`¿Estás seguro de que deseas eliminar esta ${esCasas ? 'Manzana' : 'Torre'}? Se borrarán de forma permanente todos los registros asociados.`}
                 loading={deleting}
             />
 
@@ -406,10 +412,10 @@ const ProjectDetailsViewContent: React.FC<ProjectDetailsViewProps> = ({ projectI
                 isOpen={tipoToDelete !== null}
                 onClose={() => setTipoToDelete(null)}
                 onConfirm={confirmDeleteTipo}
-                title="Eliminar Tipo de Apartamento"
-                message="¿Estás seguro de que deseas eliminar este Tipo de Apartamento?"
+                title={`Eliminar Tipo de ${esCasas ? 'Casa' : 'Apartamento'}`}
+                message={`¿Estás seguro de que deseas eliminar este Tipo de ${esCasas ? 'Casa' : 'Apartamento'}?`}
                 loading={deleting}
             />
-        </div>
+        </div >
     );
 };

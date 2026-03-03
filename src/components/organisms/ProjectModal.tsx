@@ -4,6 +4,23 @@ import { Typography } from '../atoms/Typography';
 import { FilterDropdown } from '../atoms/FilterDropdown';
 import { DEPARTAMENTOS, COLOMBIA_LOCATIONS } from '../../utils/colombia_locations';
 
+const COMMON_ZONAS = [
+    "Piscina",
+    "Gimnasio",
+    "Salón Social",
+    "Parque Infantil",
+    "BBQ",
+    "Cancha Múltiple",
+    "Zonas Verdes",
+    "Coworking",
+    "Sala de Cine",
+    "Terraza / Rooftop",
+    "Turco / Sauna",
+    "Juegos de Mesa",
+    "Cancha de Squash",
+    "Parqueadero Visitantes"
+];
+
 interface ProjectModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -16,7 +33,8 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, onS
     const [ciudad, setCiudad] = useState('');
     const [esVis, setEsVis] = useState(false);
     const [tipoInmueble, setTipoInmueble] = useState('Apartamentos');
-    const [zonasSociales, setZonasSociales] = useState('');
+    const [selectedZonas, setSelectedZonas] = useState<string[]>([]);
+    const [imagenUrl, setImagenUrl] = useState('');
     const [loading, setLoading] = useState(false);
 
     if (!isOpen) return null;
@@ -24,14 +42,14 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, onS
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        const zonasArray = zonasSociales.split(',').map(z => z.trim()).filter(z => z.length > 0);
         await onSubmit({
             nombre,
             departamento,
             ciudad,
             es_vis: esVis,
             tipo_inmueble: tipoInmueble,
-            zonas_sociales: zonasArray
+            zonas_sociales: selectedZonas,
+            imagen_url: imagenUrl || null
         });
         setLoading(false);
         setNombre('');
@@ -39,7 +57,8 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, onS
         setCiudad('');
         setEsVis(false);
         setTipoInmueble('Apartamentos');
-        setZonasSociales('');
+        setSelectedZonas([]);
+        setImagenUrl('');
     };
 
     const dptoOptions = DEPARTAMENTOS.map(d => ({ label: d, value: d }));
@@ -57,7 +76,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, onS
 
     return (
         <div className="fixed inset-0 bg-dark-900/90 flex items-center justify-center z-50 p-4">
-            <div className="bg-dark-800 border border-white/10 p-6 rounded-2xl w-full max-w-md shadow-2xl animate-fade-in relative overflow-hidden theme-light:bg-white theme-light:border-slate-200">
+            <div className="bg-dark-800 border border-white/10 p-8 rounded-2xl w-full max-w-4xl shadow-2xl animate-fade-in relative overflow-hidden theme-light:bg-white theme-light:border-slate-200">
                 {/* Glow removed for performance */}
 
                 <div className="flex justify-between items-center mb-6">
@@ -111,13 +130,35 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, onS
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-1 theme-light:text-slate-600">Zonas Sociales (separadas por coma)</label>
+                        <label className="block text-sm font-medium text-gray-400 mb-2 theme-light:text-slate-600">Zonas Sociales</label>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+                            {COMMON_ZONAS.map((zona) => (
+                                <label key={zona} className="flex items-center space-x-2 text-sm text-gray-300 cursor-pointer theme-light:text-slate-700 bg-dark-900 border border-white/5 p-2 rounded-lg hover:border-saas-500/50 transition-colors theme-light:bg-slate-50 theme-light:border-slate-200">
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedZonas.includes(zona)}
+                                        onChange={(e) => {
+                                            if (e.target.checked) {
+                                                setSelectedZonas([...selectedZonas, zona]);
+                                            } else {
+                                                setSelectedZonas(selectedZonas.filter(z => z !== zona));
+                                            }
+                                        }}
+                                        className="w-4 h-4 text-saas-500 bg-dark-900 border-white/10 rounded focus:ring-saas-500 theme-light:border-slate-300 theme-light:bg-white flex-shrink-0"
+                                    />
+                                    <span className="truncate">{zona}</span>
+                                </label>
+                            ))}
+                        </div>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-400 mb-1 theme-light:text-slate-600">URL de Imagen del Proyecto (Opcional)</label>
                         <input
-                            type="text"
-                            value={zonasSociales}
-                            onChange={(e) => setZonasSociales(e.target.value)}
+                            type="url"
+                            value={imagenUrl}
+                            onChange={(e) => setImagenUrl(e.target.value)}
                             className="w-full bg-dark-900 border border-white/10 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-saas-500 transition-all theme-light:bg-slate-50 theme-light:border-slate-200 theme-light:text-slate-900 theme-light:focus:bg-white"
-                            placeholder="Ej. Piscina, Gimnasio, Parqueadero"
+                            placeholder="https://ejemplo.com/imagen.jpg"
                         />
                     </div>
                     <div className="flex items-center space-x-2 pt-2">
