@@ -25,9 +25,10 @@ interface ProjectModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSubmit: (data: any) => Promise<void>;
+    initialData?: any;
 }
 
-export const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, onSubmit }) => {
+export const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, onSubmit, initialData }) => {
     const [nombre, setNombre] = useState('');
     const [departamento, setDepartamento] = useState('');
     const [ciudad, setCiudad] = useState('');
@@ -35,7 +36,38 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, onS
     const [tipoInmueble, setTipoInmueble] = useState('Apartamentos');
     const [selectedZonas, setSelectedZonas] = useState<string[]>([]);
     const [imagenUrl, setImagenUrl] = useState('');
+    const [telefonoContacto, setTelefonoContacto] = useState('');
+    const [correoContacto, setCorreoContacto] = useState('');
+    const [direccion, setDireccion] = useState('');
     const [loading, setLoading] = useState(false);
+
+    React.useEffect(() => {
+        if (isOpen) {
+            if (initialData) {
+                setNombre(initialData.nombre || '');
+                setDepartamento(initialData.departamento || '');
+                setCiudad(initialData.ciudad || '');
+                setEsVis(initialData.es_vis || false);
+                setTipoInmueble(initialData.tipo_inmueble || 'Apartamentos');
+                setSelectedZonas(initialData.zonas_sociales || []);
+                setImagenUrl(initialData.imagen_url || '');
+                setTelefonoContacto(initialData.telefono_contacto || '');
+                setCorreoContacto(initialData.correo_contacto || '');
+                setDireccion(initialData.direccion || '');
+            } else {
+                setNombre('');
+                setDepartamento('');
+                setCiudad('');
+                setEsVis(false);
+                setTipoInmueble('Apartamentos');
+                setSelectedZonas([]);
+                setImagenUrl('');
+                setTelefonoContacto('');
+                setCorreoContacto('');
+                setDireccion('');
+            }
+        }
+    }, [isOpen, initialData]);
 
     if (!isOpen) return null;
 
@@ -49,7 +81,10 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, onS
             es_vis: esVis,
             tipo_inmueble: tipoInmueble,
             zonas_sociales: selectedZonas,
-            imagen_url: imagenUrl || null
+            imagen_url: imagenUrl || null,
+            telefono_contacto: telefonoContacto || null,
+            correo_contacto: correoContacto || null,
+            direccion: direccion || null
         });
         setLoading(false);
         setNombre('');
@@ -59,6 +94,9 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, onS
         setTipoInmueble('Apartamentos');
         setSelectedZonas([]);
         setImagenUrl('');
+        setTelefonoContacto('');
+        setCorreoContacto('');
+        setDireccion('');
     };
 
     const dptoOptions = DEPARTAMENTOS.map(d => ({ label: d, value: d }));
@@ -80,7 +118,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, onS
                 {/* Glow removed for performance */}
 
                 <div className="flex justify-between items-center mb-6">
-                    <Typography variant="h2">Nuevo Proyecto</Typography>
+                    <Typography variant="h2">{initialData ? 'Editar Proyecto' : 'Nuevo Proyecto'}</Typography>
                     <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors theme-light:text-slate-400 theme-light:hover:text-slate-800">
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
                     </button>
@@ -117,6 +155,38 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, onS
                                 options={cityOptions}
                                 placeholder={departamento ? "Seleccionar" : "Elija Dpto primero"}
                                 variant="input"
+                            />
+                        </div>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-400 mb-1 theme-light:text-slate-600">Dirección</label>
+                        <input
+                            type="text"
+                            value={direccion}
+                            onChange={(e) => setDireccion(e.target.value)}
+                            className="w-full bg-dark-900 border border-white/10 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-saas-500 transition-all theme-light:bg-slate-50 theme-light:border-slate-200 theme-light:text-slate-900 theme-light:focus:bg-white"
+                            placeholder="Ej. Calle 123 # 45-67"
+                        />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-400 mb-1 theme-light:text-slate-600">Teléfono de Contacto</label>
+                            <input
+                                type="tel"
+                                value={telefonoContacto}
+                                onChange={(e) => setTelefonoContacto(e.target.value.replace(/\D/g, ''))}
+                                className="w-full bg-dark-900 border border-white/10 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-saas-500 transition-all theme-light:bg-slate-50 theme-light:border-slate-200 theme-light:text-slate-900 theme-light:focus:bg-white"
+                                placeholder="Ej. 3001234567"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-400 mb-1 theme-light:text-slate-600">Correo Electrónico</label>
+                            <input
+                                type="email"
+                                value={correoContacto}
+                                onChange={(e) => setCorreoContacto(e.target.value)}
+                                className="w-full bg-dark-900 border border-white/10 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-saas-500 transition-all theme-light:bg-slate-50 theme-light:border-slate-200 theme-light:text-slate-900 theme-light:focus:bg-white"
+                                placeholder="Ej. ventas@proyecto.com"
                             />
                         </div>
                     </div>
@@ -177,7 +247,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, onS
                     <div className="pt-4 flex justify-end space-x-3">
                         <Button type="button" variant="ghost" onClick={onClose}>Cancelar</Button>
                         <Button type="submit" disabled={loading}>
-                            {loading ? 'Guardando...' : 'Crear Proyecto'}
+                            {loading ? 'Guardando...' : (initialData ? 'Guardar Cambios' : 'Crear Proyecto')}
                         </Button>
                     </div>
                 </form>

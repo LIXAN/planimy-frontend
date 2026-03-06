@@ -7,6 +7,7 @@ import { TorreDetailsView } from './TorreDetailsView';
 import ConfirmModal from '../atoms/ConfirmModal';
 import { TorreModal } from '../organisms/TorreModal';
 import { TipoPlantillaModal } from '../organisms/TipoPlantillaModal';
+import { ProjectModal } from '../organisms/ProjectModal';
 
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean, error: Error | null }> {
     constructor(props: { children: React.ReactNode }) {
@@ -62,6 +63,8 @@ const ProjectDetailsViewContent: React.FC<ProjectDetailsViewProps> = ({ projectI
     const [editingImage, setEditingImage] = useState(false);
     const [tempImageUrl, setTempImageUrl] = useState('');
     const [savingImage, setSavingImage] = useState(false);
+
+    const [isEditProjectModalOpen, setIsEditProjectModalOpen] = useState(false);
 
     const fetchProject = async () => {
         try {
@@ -178,6 +181,17 @@ const ProjectDetailsViewContent: React.FC<ProjectDetailsViewProps> = ({ projectI
         }
     };
 
+    const handleUpdateProject = async (data: any) => {
+        try {
+            await projectService.updateProject(projectId, data);
+            setIsEditProjectModalOpen(false);
+            fetchProject();
+        } catch (error) {
+            console.error("Error updating project", error);
+            alert("Hubo un error al actualizar el proyecto.");
+        }
+    };
+
     // Si hay una torre seleccionada, descendemos a esa vista
     if (selectedTorreId) {
         return <TorreDetailsView projectId={projectId} torreId={selectedTorreId} onBack={() => setSelectedTorreId(null)} project={project} />;
@@ -204,7 +218,12 @@ const ProjectDetailsViewContent: React.FC<ProjectDetailsViewProps> = ({ projectI
                 </Button>
 
                 <div className="glass-card theme-light:bg-white theme-light:border-slate-200 theme-light:shadow-slate-200/50 p-6 rounded-2xl">
-                    <Typography variant="h2" className="mb-4">Información General</Typography>
+                    <div className="flex justify-between items-center mb-4">
+                        <Typography variant="h2">Información General</Typography>
+                        <Button variant="secondary" onClick={() => setIsEditProjectModalOpen(true)} className="text-sm py-1.5 px-4 h-auto">
+                            Editar Información
+                        </Button>
+                    </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <div>
@@ -229,6 +248,33 @@ const ProjectDetailsViewContent: React.FC<ProjectDetailsViewProps> = ({ projectI
                             <span className="text-gray-300 theme-light:text-slate-700 text-sm">
                                 {project.zonas_sociales && project.zonas_sociales.length > 0 ? project.zonas_sociales.join(', ') : 'Ninguna registrada'}
                             </span>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-dark-900/30 border border-white/5 p-4 rounded-xl theme-light:bg-slate-50 theme-light:border-slate-200 mb-6">
+                        <div>
+                            <span className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 theme-light:text-slate-400">Dirección</span>
+                            <span className="text-gray-300 theme-light:text-slate-700 text-sm">
+                                {project.direccion || 'No especificada'}
+                            </span>
+                        </div>
+                        <div>
+                            <span className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 theme-light:text-slate-400">Contacto de Ventas</span>
+                            <div className="flex flex-col gap-1 text-sm text-gray-300 theme-light:text-slate-700">
+                                {project.telefono_contacto && (
+                                    <span className="flex items-center gap-2">
+                                        <svg className="w-4 h-4 text-saas-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+                                        {project.telefono_contacto}
+                                    </span>
+                                )}
+                                {project.correo_contacto && (
+                                    <span className="flex items-center gap-2">
+                                        <svg className="w-4 h-4 text-saas-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                                        {project.correo_contacto}
+                                    </span>
+                                )}
+                                {!project.telefono_contacto && !project.correo_contacto && 'No especificado'}
+                            </div>
                         </div>
                     </div>
 
@@ -415,6 +461,13 @@ const ProjectDetailsViewContent: React.FC<ProjectDetailsViewProps> = ({ projectI
                 title={`Eliminar Tipo de ${esCasas ? 'Casa' : 'Apartamento'}`}
                 message={`¿Estás seguro de que deseas eliminar este Tipo de ${esCasas ? 'Casa' : 'Apartamento'}?`}
                 loading={deleting}
+            />
+
+            <ProjectModal
+                isOpen={isEditProjectModalOpen}
+                initialData={project}
+                onClose={() => setIsEditProjectModalOpen(false)}
+                onSubmit={handleUpdateProject}
             />
         </div >
     );
